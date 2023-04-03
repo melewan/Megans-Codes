@@ -6,10 +6,7 @@
 library(tidyverse)
 library(magrittr)
 library(readxl)
-library(tidyr)
 library(plyr)
-library(dplyr)
-library(ggplot2)
 library(egg)
 library(data.table)
 library(hms)
@@ -79,7 +76,7 @@ for(i in 1:nrow(id)) {
   # If-statement that loads cast files differently depending on the year  & GLClad format 
   if(datayear == 2) {
     # 2020+ format
-    #i =
+    #i = 47
     EXO2filename = id$EXO2filename[i]
     file.name = paste(EXO2filename,".csv", sep = "")
     file.name2 = paste(EXO2filename)
@@ -483,10 +480,10 @@ cast.data.info = cast.data.info %>%
     Time = Time / 24)
 
 # Add Value Qualifiers
-for(i in 1:nrow(cast.data.info))
+for(i in 1:nrow(cast.data.info)) {
   if(!is.null(cast.data.info$Count[i]) & cast.data.info$Count[i] == 2) {
     cast.data.info$'ValueQualifier'[i] = 'BCT'
-  }
+  }}
 
 # Combine file with other cast data
 if(!exists("all.casts")){
@@ -614,8 +611,8 @@ mean1mB = add_column(mean1mB, Phyco.Outliers = 0, .after = "Chl.Outliers")
 ## Minor
 MinorOutliers = function(mean1mB) {
 # calculate upper and lower quartiles
-lowerq = quantile(mean1mB)[2]
-upperq = quantile(mean1mB)[4]
+lowerq = quantile(mean1mB, na.rm = TRUE)[2]
+upperq = quantile(mean1mB, na.rm = TRUE)[4]
 iqr = upperq - lowerq
 # minor thresholds
 threshold.lower = lowerq - (iqr * 1.5)
@@ -624,8 +621,8 @@ threshold.upper = (iqr * 1.5) + upperq
 extreme.threshold.lower = lowerq - (iqr * 3)
 extreme.threshold.upper = (iqr * 3) + upperq
 # result in list
-minorresult = which(mean1mB > threshold.upper & mean1mB < extreme.threshold.upper
-                    | mean1mB < threshold.lower & mean1mB > extreme.threshold.lower)
+minorresult = which(mean1mB > threshold.upper & mean1mB <= extreme.threshold.upper
+                    | mean1mB < threshold.lower & mean1mB >= extreme.threshold.lower)
 }
 # Run function on all 7 parameters
 MinorOutliersPositions = lapply(mean1mB[,9:15], MinorOutliers) 
@@ -634,8 +631,8 @@ MinorOutliersPositions = lapply(mean1mB[,9:15], MinorOutliers)
 ## Major
 MajorOutliers <- function(mean1mB) {
 # calculate upper and lower quartiles
-lowerq = quantile(mean1mB)[2]
-upperq = quantile(mean1mB)[4]
+lowerq = quantile(mean1mB, na.rm = TRUE)[2]
+upperq = quantile(mean1mB, na.rm = TRUE)[4]
 iqr = upperq - lowerq
 # minor thresholds
 threshold.lower = lowerq - (iqr * 1.5)
